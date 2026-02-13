@@ -1,0 +1,92 @@
+{
+  "@@locale": "ar",
+  
+  "appTitle": "تطبيق ذكر والقرآن",
+  
+  "home": "الرئيسية",
+  "quran": "القرآن",
+  "zikr": "ذكر",
+  "settings": "الإعدادات",
+  
+  "selectQuran": "اختر القرآن",
+  "selectZikr": "اختر الذكر",
+  "chooseYourZikr": "اختر ذكرك",
+  "selectTheZikr": "اختر الذكر الذي تريد عده",
+  
+  "startReading": "ابدأ القراءة",
+  "continueReading": "استمر في القراءة",
+  "lastProgress": "آخر: {location}",
+  
+  "startZikr": "ابدأ الذكر",
+  "continueZikr": "استمر في الذكر",
+  "startFirstZikr": "ابدأ أول ذكر لك",
+  
+  "todayZikr": "ذكر اليوم",
+  "totalZikr": "إجمالي الذكر",
+  "activeZikrs": "الأذكار النشطة",
+  "total": "المجموع",
+  
+  "addZikr": "أضف ذكر",
+  "addCustomZikr": "أضف ذكر مخصص",
+  "nameRequired": "* الاسم مطلوب، والباقي اختياري",
+  "name": "الاسم",
+  "nameLabel": "الاسم *",
+  "arabicText": "النص العربي",
+  "meaning": "المعنى",
+  "cancel": "إلغاء",
+  "add": "إضافة",
+  "close": "إغلاق",
+  
+  "nameIsRequired": "الاسم مطلوب",
+  "zikrAddedSuccessfully": "تمت إضافة الذكر بنجاح!",
+  "zikrAlreadyExists": "يوجد ذكر بهذا الاسم بالفعل",
+  
+  "today": "اليوم",
+  "tapToCount": "اضغط للعد",
+  "history": "السجل",
+  "lastSevenDays": "آخر 7 أيام",
+  "loadingProgress": "جاري تحميل تقدمك...",
+  
+  "changeLanguage": "تغيير اللغة",
+  "english": "English (الإنجليزية)",
+  "arabic": "العربية",
+  "urdu": "اردو (الأردية)",
+  
+  "lightMode": "الوضع الفاتح",
+  "darkMode": "الوضع الداكن",
+  
+  "subhanallah": "سبحان الله",
+  "alhamdulillah": "الحمد لله",
+  "allahuAkbar": "الله أكبر",
+  "laIlahaIllallah": "لا إله إلا الله",
+  "astaghfirullah": "أستغفر الله",
+  
+  "gloryBeToAllah": "سبحان الله",
+  "allPraiseToAllah": "كل الحمد لله",
+  "allahIsGreatest": "الله أكبر",
+  "noDeityExceptAllah": "لا إله إلا الله",
+  "iSeekForgiveness": "أستغفر الله",
+  
+  "customZikr": "ذكر مخصص",
+  "times": "مرات",
+  
+  "selectJuz": "اختر الجزء",
+  "chooseYourJuz": "اختر جزءك",
+  "selectFrom30Juz": "اختر من 30 جزءًا لبدء تتبع القرآن",
+  
+  "selectRuku": "اختر الركوع",
+  "chooseRuku": "اختر الركوع",
+  "ruku": "ركوع",
+  "rukusInJuz": "{count} ركوعات في الجزء {juzNumber}",
+  
+  "todayCount": "اليوم",
+  "totalCount": "المجموع",
+  "customIncrement": "مخصص",
+  "customIncrementDialog": "زيادة مخصصة",
+  "enterNumber": "أدخل الرقم",
+  "historyTitle": "السجل",
+  "todayLabel": "اليوم:",
+  "totalLabel": "المجموع:",
+  "lastSevenDaysLabel": "آخر 7 أيام",
+  "juz": "جزء"
+}

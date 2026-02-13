@@ -1,0 +1,92 @@
+{
+  "@@locale": "ur",
+  
+  "appTitle": "ذکر اور قرآن ٹریکر",
+  
+  "home": "ہوم",
+  "quran": "قرآن",
+  "zikr": "ذکر",
+  "settings": "ترتیبات",
+  
+  "selectQuran": "قرآن منتخب کریں",
+  "selectZikr": "ذکر منتخب کریں",
+  "chooseYourZikr": "اپنا ذکر منتخب کریں",
+  "selectTheZikr": "وہ ذکر منتخب کریں جس کی گنتی کرنا چاہتے ہیں",
+  
+  "startReading": "پڑھنا شروع کریں",
+  "continueReading": "پڑھنا جاری رکھیں",
+  "lastProgress": "آخری: {location}",
+  
+  "startZikr": "ذکر شروع کریں",
+  "continueZikr": "ذکر جاری رکھیں",
+  "startFirstZikr": "اپنا پہلا ذکر شروع کریں",
+  
+  "todayZikr": "آج کا ذکر",
+  "totalZikr": "کل ذکر",
+  "activeZikrs": "فعال اذکار",
+  "total": "کل",
+  
+  "addZikr": "ذکر شامل کریں",
+  "addCustomZikr": "اپنا ذکر شامل کریں",
+  "nameRequired": "* نام ضروری ہے، باقی اختیاری ہیں",
+  "name": "نام",
+  "nameLabel": "نام *",
+  "arabicText": "عربی متن",
+  "meaning": "معنی",
+  "cancel": "منسوخ کریں",
+  "add": "شامل کریں",
+  "close": "بند کریں",
+  
+  "nameIsRequired": "نام ضروری ہے",
+  "zikrAddedSuccessfully": "ذکر کامیابی سے شامل ہو گیا!",
+  "zikrAlreadyExists": "اس نام کا ذکر پہلے سے موجود ہے",
+  
+  "today": "آج",
+  "tapToCount": "گننے کے لیے ٹیپ کریں",
+  "history": "تاریخ",
+  "lastSevenDays": "آخری 7 دن",
+  "loadingProgress": "آپ کی پیشرفت لوڈ ہو رہی ہے...",
+  
+  "changeLanguage": "زبان تبدیل کریں",
+  "english": "English (انگریزی)",
+  "arabic": "العربية (عربی)",
+  "urdu": "اردو",
+  
+  "lightMode": "روشن موڈ",
+  "darkMode": "تاریک موڈ",
+  
+  "subhanallah": "سبحان اللہ",
+  "alhamdulillah": "الحمد للہ",
+  "allahuAkbar": "اللہ اکبر",
+  "laIlahaIllallah": "لا الہ الا اللہ",
+  "astaghfirullah": "استغفر اللہ",
+  
+  "gloryBeToAllah": "اللہ کی تسبیح",
+  "allPraiseToAllah": "تمام تعریفیں اللہ کے لیے",
+  "allahIsGreatest": "اللہ سب سے بڑا ہے",
+  "noDeityExceptAllah": "اللہ کے سوا کوئی معبود نہیں",
+  "iSeekForgiveness": "میں اللہ سے بخشش مانگتا ہوں",
+  
+  "customZikr": "حسب ضرورت ذکر",
+  "times": "بار",
+  
+  "selectJuz": "جز منتخب کریں",
+  "chooseYourJuz": "اپنا جز منتخب کریں",
+  "selectFrom30Juz": "قرآن ٹریکنگ شروع کرنے کے لیے 30 جز میں سے منتخب کریں",
+  
+  "selectRuku": "رکوع منتخب کریں",
+  "chooseRuku": "رکوع منتخب کریں",
+  "ruku": "رکوع",
+  "rukusInJuz": "جز {juzNumber} میں {count} رکوع",
+  
+  "todayCount": "آج",
+  "totalCount": "کل",
+  "customIncrement": "حسب ضرورت",
+  "customIncrementDialog": "حسب ضرورت اضافہ",
+  "enterNumber": "نمبر درج کریں",
+  "historyTitle": "تاریخ",
+  "todayLabel": "آج:",
+  "totalLabel": "کل:",
+  "lastSevenDaysLabel": "آخری 7 دن",
+  "juz": "جز"
+}

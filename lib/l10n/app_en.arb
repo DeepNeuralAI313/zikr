@@ -1,0 +1,114 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "Dhikr Quran Tracker",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  
+  "home": "Home",
+  "quran": "Quran",
+  "zikr": "Dhikr",
+  "settings": "Settings",
+  
+  "selectQuran": "Select a Quran",
+  "selectZikr": "Select a Dhikr",
+  "chooseYourZikr": "Choose your Dhikr",
+  "selectTheZikr": "Select the Dhikr you want to count",
+  
+  "startReading": "Start Reading",
+  "continueReading": "Continue Reading",
+  "lastProgress": "Last: {location}",
+  "@lastProgress": {
+    "description": "Last reading progress",
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "startZikr": "Start Dhikr",
+  "continueZikr": "Continue Dhikr",
+  "startFirstZikr": "Start your first Dhikr",
+  
+  "todayZikr": "Today's Dhikr",
+  "totalZikr": "Total Dhikr",
+  "activeZikrs": "Active Dhikrs",
+  "total": "total",
+  
+  "addZikr": "Add Dhikr",
+  "addCustomZikr": "Add Custom Dhikr",
+  "nameRequired": "* Name is required, others are optional",
+  "name": "Name",
+  "nameLabel": "Name *",
+  "arabicText": "Arabic Text",
+  "meaning": "Meaning",
+  "cancel": "Cancel",
+  "add": "Add",
+  "close": "Close",
+  
+  "nameIsRequired": "Name is required",
+  "zikrAddedSuccessfully": "Dhikr added successfully!",
+  "zikrAlreadyExists": "A dhikr with this name already exists",
+  
+  "today": "Today",
+  "tapToCount": "Tap to count",
+  "history": "History",
+  "lastSevenDays": "Last 7 Days",
+  "loadingProgress": "Loading your progress...",
+  
+  "changeLanguage": "Change Language",
+  "english": "English",
+  "arabic": "العربية (Arabic)",
+  "urdu": "اردو (Urdu)",
+  
+  "lightMode": "Light Mode",
+  "darkMode": "Dark Mode",
+  
+  "subhanallah": "SubhanAllah",
+  "alhamdulillah": "Alhamdulillah",
+  "allahuAkbar": "Allahu Akbar",
+  "laIlahaIllallah": "La ilaha illallah",
+  "astaghfirullah": "Astaghfirullah",
+  
+  "gloryBeToAllah": "Glory be to Allah",
+  "allPraiseToAllah": "All praise is due to Allah",
+  "allahIsGreatest": "Allah is the Greatest",
+  "noDeityExceptAllah": "There is no deity except Allah",
+  "iSeekForgiveness": "I seek forgiveness from Allah",
+  
+  "customZikr": "Custom Dhikr",
+  "times": "times",
+  
+  "selectJuz": "Select Juz",
+  "chooseYourJuz": "Choose your Juz",
+  "selectFrom30Juz": "Select from 30 Juz to begin your Quran tracking",
+  
+  "selectRuku": "Select Ruku",
+  "chooseRuku": "Choose Ruku",
+  "ruku": "Ruku",
+  "rukusInJuz": "{count} Rukus in Juz {juzNumber}",
+  "@rukusInJuz": {
+    "description": "Number of Rukus in a Juz",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "juzNumber": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "todayCount": "Today",
+  "totalCount": "Total",
+  "customIncrement": "Custom",
+  "customIncrementDialog": "Custom Increment",
+  "enterNumber": "Enter number",
+  "historyTitle": "History",
+  "todayLabel": "Today:",
+  "totalLabel": "Total:",
+  "lastSevenDaysLabel": "Last 7 Days",
+  "juz": "Juz"
+}
