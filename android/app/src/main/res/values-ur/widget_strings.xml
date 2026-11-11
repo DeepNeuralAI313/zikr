@@ -1,0 +1,7 @@
+<resources>
+    <string name="widget_name">ذکر · آج</string>
+    <string name="widget_description">روزانہ ذکر اور قرآن کی پیش رفت۔ کاؤنٹر کھولنے کے لیے دبائیں۔</string>
+    <string name="widget_open">ذکر کاؤنٹر کھولنے کے لیے دبائیں</string>
+    <string name="widget_dhikr">ذکر: %1$d / %2$d</string>
+    <string name="widget_rukus">رکوع: %1$d / %2$d</string>
+</resources>

@@ -36,16 +36,16 @@ class _ZikrScreenState extends State<ZikrScreen> {
   }
 
   Future<void> _incrementCounter(ZikrCounter zikr, int increment) async {
-    final newCount = zikr.count + increment;
+    final newCount = zikr.sessionCount + increment;
     try {
-      await _db.updateZikrCount(zikr.id, newCount);
+      await _db.incrementZikrCount(zikr.id, increment);
       await _loadZikrCounters();
       
       // Haptic feedback
       HapticFeedback.lightImpact();
       
       // Show completion celebration
-      if (zikr.count < zikr.target && newCount >= zikr.target) {
+      if (zikr.sessionCount < zikr.target && newCount >= zikr.target) {
         _showCompletionDialog(zikr.name);
       }
     } catch (e) {

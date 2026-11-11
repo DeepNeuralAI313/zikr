@@ -1,0 +1,7 @@
+<resources>
+    <string name="widget_name">Dhikr · Today</string>
+    <string name="widget_description">Daily dhikr and Quran progress. Tap to open counters.</string>
+    <string name="widget_open">Tap to open dhikr counters</string>
+    <string name="widget_dhikr">Dhikr: %1$d / %2$d</string>
+    <string name="widget_rukus">Rukus: %1$d / %2$d</string>
+</resources>

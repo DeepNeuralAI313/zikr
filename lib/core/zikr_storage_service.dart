@@ -45,6 +45,10 @@ class ZikrStorageService {
     required String meaning,
   }) async {
     try {
+      name = name.trim();
+      if (name.isEmpty || predefinedZikr.any((zikr) => zikr['name'] == name)) {
+        return false;
+      }
       final prefs = await SharedPreferences.getInstance();
       final customZikrJson = prefs.getString(_customZikrKey);
       
@@ -205,7 +209,7 @@ class ZikrStorageService {
   }
   
   // Reset session count and save as completed session
-  // This is the ONLY way count resets - no automatic resets!
+  // Counts also roll over automatically when a new day begins.
   Future<bool> resetZikrSession(String zikrName) async {
     try {
       final zikr = await _db.getZikrCounterByName(zikrName);
@@ -223,6 +227,10 @@ class ZikrStorageService {
   Future<Map<String, int>> getAllZikrCounts() async {
     try {
       print('ZikrStorage: Getting all zikr counts...');
+      final existing = await _db.getZikrCounters();
+      for (final counter in existing) {
+        await _db.checkAndResetDailyCount(counter.id);
+      }
       final counters = await _db.getZikrCounters();
       print('ZikrStorage: Found ${counters.length} counters');
       

@@ -55,6 +55,7 @@ class _ZikrListPageState extends State<ZikrListPage>
         ));
       }
 
+      if (!mounted) return;
       setState(() {
         zikrItems = items;
         isLoading = false;
@@ -80,6 +81,7 @@ class _ZikrListPageState extends State<ZikrListPage>
         ));
       }
       
+      if (!mounted) return;
       setState(() {
         zikrItems = fallbackItems;
         isLoading = false;
@@ -281,7 +283,6 @@ class _ZikrListPageState extends State<ZikrListPage>
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
     
     return Scaffold(

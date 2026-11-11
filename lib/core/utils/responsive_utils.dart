@@ -22,6 +22,31 @@ class ResponsiveUtils {
     return MediaQuery.of(context).size.width >= desktopBreakpoint;
   }
 
+  // Explicit size choices used by the counter and home screens.
+  static double getSpacing(
+    BuildContext context, {
+    required double mobile,
+    required double tablet,
+    required double desktop,
+  }) {
+    if (isMobile(context)) return mobile;
+    if (isTablet(context)) return tablet;
+    return desktop;
+  }
+
+  static double getFontSize(
+    BuildContext context, {
+    required double mobile,
+    required double tablet,
+    required double desktop,
+  }) => getSpacing(context, mobile: mobile, tablet: tablet, desktop: desktop);
+
+  static EdgeInsets getPagePadding(BuildContext context) =>
+      getResponsivePadding(context);
+
+  static double getCounterSize(BuildContext context) =>
+      getSpacing(context, mobile: 220, tablet: 280, desktop: 320);
+
   /// Get responsive padding based on screen size
   static EdgeInsets getResponsivePadding(BuildContext context) {
     if (isMobile(context)) {
@@ -45,7 +70,10 @@ class ResponsiveUtils {
   }
 
   /// Get responsive grid cross axis count
-  static int getGridCrossAxisCount(BuildContext context, {double itemWidth = 120}) {
+  static int getGridCrossAxisCount(
+    BuildContext context, {
+    double itemWidth = 120,
+  }) {
     final screenWidth = MediaQuery.of(context).size.width;
     final padding = getResponsivePadding(context);
     final availableWidth = screenWidth - padding.horizontal;
@@ -54,7 +82,10 @@ class ResponsiveUtils {
   }
 
   /// Get responsive font size
-  static double getResponsiveFontSize(BuildContext context, double baseFontSize) {
+  static double getResponsiveFontSize(
+    BuildContext context,
+    double baseFontSize,
+  ) {
     if (isMobile(context)) {
       return baseFontSize * 0.9;
     } else if (isTablet(context)) {
@@ -65,7 +96,10 @@ class ResponsiveUtils {
   }
 
   /// Get responsive icon size
-  static double getResponsiveIconSize(BuildContext context, double baseIconSize) {
+  static double getResponsiveIconSize(
+    BuildContext context,
+    double baseIconSize,
+  ) {
     if (isMobile(context)) {
       return baseIconSize * 0.9;
     } else if (isTablet(context)) {
@@ -76,7 +110,10 @@ class ResponsiveUtils {
   }
 
   /// Get responsive card height
-  static double getResponsiveCardHeight(BuildContext context, double baseHeight) {
+  static double getResponsiveCardHeight(
+    BuildContext context,
+    double baseHeight,
+  ) {
     if (isMobile(context)) {
       return baseHeight * 0.9;
     } else if (isTablet(context)) {
@@ -122,22 +159,13 @@ class ResponsiveUtils {
   /// Get responsive container constraints
   static BoxConstraints getResponsiveConstraints(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     if (isMobile(context)) {
-      return BoxConstraints(
-        maxWidth: screenWidth,
-        minHeight: 0,
-      );
+      return BoxConstraints(maxWidth: screenWidth, minHeight: 0);
     } else if (isTablet(context)) {
-      return BoxConstraints(
-        maxWidth: screenWidth * 0.8,
-        minHeight: 0,
-      );
+      return BoxConstraints(maxWidth: screenWidth * 0.8, minHeight: 0);
     } else {
-      return BoxConstraints(
-        maxWidth: 1200,
-        minHeight: 0,
-      );
+      return BoxConstraints(maxWidth: 1200, minHeight: 0);
     }
   }
 
@@ -165,7 +193,7 @@ class ResponsiveUtils {
     double itemWidth = 120,
   }) {
     final crossAxisCount = getGridCrossAxisCount(context, itemWidth: itemWidth);
-    
+
     return SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: crossAxisCount,
       childAspectRatio: childAspectRatio,

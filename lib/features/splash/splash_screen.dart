@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 
@@ -8,6 +9,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
+  Timer? _navigationTimer;
   late AnimationController _pulseController;
   late AnimationController _fadeController;
   late AnimationController _glowController;
@@ -64,13 +66,15 @@ class _SplashScreenState extends State<SplashScreen>
     _glowController.repeat(reverse: true);
 
     // Navigate to home after 3 seconds
-    Future.delayed(Duration(seconds: 3), () {
+    _navigationTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
     });
   }
 
   @override
   void dispose() {
+    _navigationTimer?.cancel();
     _pulseController.dispose();
     _fadeController.dispose();
     _glowController.dispose();

@@ -14,10 +14,14 @@ import 'features/quran/juz_selection_page.dart';
 import 'features/quran/ruku_selection_page.dart';
 import 'features/zikr/zikr_list_page.dart';
 import 'features/zikr/zikr_counter_page.dart';
+import 'features/routine/routine_page.dart';
+import 'features/adhkar/adhkar_page.dart';
+import 'features/settings/settings_screen.dart';
+import 'features/settings/appearance_page.dart';
+import 'core/services/reading_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'generated/app_localizations.dart';
-import 'core/services/app_update_service.dart';
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 
 Future<void> main() async {
@@ -52,6 +56,7 @@ Future<void> main() async {
   
   // Initialize locale service
   await LocaleService.instance.loadLocale();
+  await ReadingPreferences.instance.load();
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -113,6 +118,11 @@ class MyApp extends StatelessWidget {
             routes: {
               '/': (context) => SplashScreen(),
               '/home': (context) => ModernHomePage(),
+              '/routine': (context) => const RoutinePage(),
+              '/adhkar': (context) => const AdhkarPage(),
+              '/settings': (context) => const SettingsScreen(),
+              '/appearance': (context) => const AppearancePage(),
+              '/data-settings': (context) => const SettingsScreen(dataOnly: true),
               '/quran-flow': (context) => JuzSelectionPage(),
               '/ruku-selection': (context) {
                 final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;

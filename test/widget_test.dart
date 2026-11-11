@@ -1,24 +1,31 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zikr/core/services/theme_service.dart';
 import 'package:zikr/main.dart';
 
 void main() {
-  testWidgets('App builds successfully', (WidgetTester tester) async {
-    await tester.pumpWidget(const MyApp());
-    
-    // Verify MaterialApp is present
-    expect(find.byType(MaterialApp), findsOneWidget);
-    
-    // Verify dark theme is applied
-    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
-    expect(app.themeMode, ThemeMode.dark);
-  });
+  testWidgets(
+    'App starts with the default light theme and restores dark theme',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await ThemeService.instance.loadTheme();
+      await tester.pumpWidget(const MyApp());
+      expect(find.byType(MaterialApp), findsOneWidget);
+      expect(
+        tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+        ThemeMode.light,
+      );
+      await ThemeService.instance.setTheme(ThemeMode.dark);
+      await tester.pump();
+      expect(
+        tester.widget<MaterialApp>(find.byType(MaterialApp)).themeMode,
+        ThemeMode.dark,
+      );
+      await ThemeService.instance.loadTheme();
+      expect(ThemeService.instance.themeMode, ThemeMode.dark);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

@@ -72,7 +72,7 @@ class ZikrProgressChart extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "${zikr.count}",
+                            "${zikr.sessionCount}",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -125,7 +125,7 @@ class ZikrProgressChart extends StatelessWidget {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '${zikr.count} / ${zikr.target}',
+                        '${zikr.sessionCount} / ${zikr.target}',
                         style: TextStyle(color: Colors.grey[700]),
                       ),
                       SizedBox(height: 12),
@@ -157,7 +157,8 @@ Widget zikrProgressChart(int count, int target) {
     name: 'Durood Sharif',
     arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ',
     meaning: 'O Allah, send blessings upon Muhammad and the family of Muhammad',
-    count: count,
+    sessionCount: count,
+    lifetimeTotal: count,
     target: target,
     lastUpdated: DateTime.now(),
   );

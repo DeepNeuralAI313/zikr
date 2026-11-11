@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../core/services/routine_service.dart';
+import '../../core/services/reading_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import '../../core/models.dart';
 import '../../generated/app_localizations.dart';
 import '../../core/theme.dart';
 import '../../core/zikr_storage_service.dart';
@@ -9,7 +13,7 @@ import 'zikr_list_page.dart';
 
 class ZikrCounterPage extends StatefulWidget {
   final ZikrItem zikr;
-  
+
   const ZikrCounterPage({Key? key, required this.zikr}) : super(key: key);
 
   @override
@@ -22,54 +26,60 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
   late AnimationController _pulseController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _pulseAnimation;
-  
+
   int currentCount = 0;
   int todayCount = 0;
   int lifetimeTotal = 0;
+  bool _loaded = false;
+  Future<void> _pendingWrites = Future<void>.value();
+  Map<String, int> _dailyHistory = {};
+  List<ZikrSession> _sessions = [];
   final ZikrStorageService _storage = ZikrStorageService.instance;
 
   @override
   void initState() {
     super.initState();
     _loadZikrData();
-    
+
     _countAnimationController = AnimationController(
       duration: Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: Duration(milliseconds: 150),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.2,
-    ).animate(CurvedAnimation(
-      parent: _countAnimationController,
-      curve: Curves.elasticOut,
-    ));
-    
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.95,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(
+        parent: _countAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
   }
 
   Future<void> _loadZikrData() async {
+    await ReadingPreferences.instance.load();
     try {
       final count = await _storage.getZikrCount(widget.zikr.name);
       final todayCount = await _storage.getTodayZikrCount(widget.zikr.name);
       final lifetime = await _storage.getLifetimeTotal(widget.zikr.name);
-      
+      final history = await _storage.getZikrHistory(widget.zikr.name, days: 7);
+      final sessions = await _storage.getZikrSessions(widget.zikr.name);
+      if (!mounted) return;
+
       setState(() {
         currentCount = count;
         this.todayCount = todayCount;
         this.lifetimeTotal = lifetime;
+        _dailyHistory = history;
+        _sessions = sessions;
+        _loaded = true;
       });
     } catch (e) {
       print('Error loading zikr data: $e');
@@ -83,52 +93,28 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
     super.dispose();
   }
 
-  void _incrementCount(int increment) async {
+  void _incrementCount(int increment) {
+    if (!_loaded || increment <= 0) return;
     HapticFeedback.mediumImpact();
-    setState(() {
-      currentCount += increment;
-      todayCount += increment;
-      lifetimeTotal += increment;
-    });
-    
     _countAnimationController.forward().then((_) {
-      _countAnimationController.reverse();
+      if (mounted) _countAnimationController.reverse();
     });
-
-    // Save to storage
-    try {
-      final success = await _storage.incrementZikrCount(widget.zikr.name, increment);
-      if (!success) {
-        // Revert on failure
-        setState(() {
-          currentCount -= increment;
-          todayCount -= increment;
-          lifetimeTotal -= increment;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error saving count'),
-            backgroundColor: accentPink,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      print('Error updating zikr count: $e');
-      // Revert on error
-      setState(() {
-        currentCount -= increment;
-        todayCount -= increment;
-        lifetimeTotal -= increment;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error saving count: $e'),
-          backgroundColor: accentPink,
-          duration: Duration(seconds: 2),
-        ),
+    // Keep rapid taps and resets in order, including their history refreshes.
+    _pendingWrites = _pendingWrites.then((_) async {
+      final success = await _storage.incrementZikrCount(
+        widget.zikr.name,
+        increment,
       );
-    }
+      if (!mounted) return;
+      if (success) {
+        await _loadZikrData();
+        RoutineService.progressChanged();
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Error saving count')));
+      }
+    });
   }
 
   void _showCustomIncrementDialog() {
@@ -136,8 +122,10 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
     final controller = TextEditingController();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = Theme.of(context).colorScheme.surface;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
-    
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : Colors.black);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -162,7 +150,10 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel, style: TextStyle(color: isDark ? accentGrey : accentGreyDark)),
+            child: Text(
+              l10n.cancel,
+              style: TextStyle(color: isDark ? accentGrey : accentGreyDark),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -174,7 +165,9 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: accentCyan,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
             ),
             child: Text(l10n.add, style: TextStyle(color: Colors.white)),
           ),
@@ -185,11 +178,13 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
 
   Future<void> _resetSession() async {
     if (currentCount == 0) return;
-    
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = Theme.of(context).colorScheme.surface;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
-    
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : Colors.black);
+
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
@@ -204,34 +199,46 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: TextStyle(color: isDark ? accentGrey : accentGreyDark)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: isDark ? accentGrey : accentGreyDark),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: accentPink,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
             ),
             child: Text('Reset', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
-    
-    if (confirmed != true) return;
-    
+
+    if (confirmed != true || !mounted) return;
+
+    _pendingWrites = _pendingWrites.then((_) => _saveResetSession());
+    await _pendingWrites;
+  }
+
+  Future<void> _saveResetSession() async {
     try {
       // Reset session in storage (this saves current session to history)
       final success = await _storage.resetZikrSession(widget.zikr.name);
-      
+      if (!mounted) return;
+
       if (success) {
         setState(() {
           currentCount = 0;
         });
-        
+
         // Reload data to get updated values
         await _loadZikrData();
-        
+        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Session reset successfully! History saved.'),
@@ -250,6 +257,7 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
       }
     } catch (e) {
       print('Error resetting session: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
@@ -262,11 +270,8 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
-    
+
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
@@ -276,7 +281,7 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
               children: [
                 // Custom App Bar
                 _buildAppBar(),
-                
+
                 // Main Content - Wrapped in Expanded and SingleChildScrollView
                 Expanded(
                   child: SingleChildScrollView(
@@ -284,37 +289,74 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight - 100,
-                        maxWidth: ResponsiveUtils.isDesktop(context) ? 800 : double.infinity,
+                        maxWidth: ResponsiveUtils.isDesktop(context)
+                            ? 800
+                            : double.infinity,
                       ),
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 20, tablet: 30, desktop: 40)),
-                            
+                            SizedBox(
+                              height: ResponsiveUtils.getSpacing(
+                                context,
+                                mobile: 20,
+                                tablet: 30,
+                                desktop: 40,
+                              ),
+                            ),
+
                             // Zikr Text
                             _buildZikrText(),
-                            
-                            SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 40, tablet: 50, desktop: 60)),
-                            
+
+                            SizedBox(
+                              height: ResponsiveUtils.getSpacing(
+                                context,
+                                mobile: 40,
+                                tablet: 50,
+                                desktop: 60,
+                              ),
+                            ),
+
                             // Counter Display
                             _buildCounterDisplay(),
-                            
-                            SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 40, tablet: 50, desktop: 60)),
-                            
+
+                            SizedBox(
+                              height: ResponsiveUtils.getSpacing(
+                                context,
+                                mobile: 40,
+                                tablet: 50,
+                                desktop: 60,
+                              ),
+                            ),
+
                             // Increment Buttons
                             _buildIncrementButtons(),
-                            
-                            SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 30, tablet: 40, desktop: 50)),
-                            
+
+                            SizedBox(
+                              height: ResponsiveUtils.getSpacing(
+                                context,
+                                mobile: 30,
+                                tablet: 40,
+                                desktop: 50,
+                              ),
+                            ),
+
                             // History
                             _buildHistory(),
-                            
-                            SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 30, tablet: 40, desktop: 50)),
-                            
+
+                            SizedBox(
+                              height: ResponsiveUtils.getSpacing(
+                                context,
+                                mobile: 30,
+                                tablet: 40,
+                                desktop: 50,
+                              ),
+                            ),
+
                             // Line Chart
                             _buildLineChart(),
-                            
+
                             SizedBox(height: 20), // Extra bottom padding
                           ],
                         ),
@@ -332,9 +374,11 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
 
   Widget _buildAppBar() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : Colors.black);
     final isLongText = widget.zikr.name.length > 40;
-    
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -420,56 +464,96 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
     );
   }
 
-  Widget _buildZikrText() {
-    return Container(
-      padding: EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: widget.zikr.gradient,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: widget.zikr.gradient.colors[0].withOpacity(0.3),
-            blurRadius: 20,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            widget.zikr.arabic,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontFamily: 'Amiri',
+  Widget _buildZikrText() => ListenableBuilder(
+    listenable: ReadingPreferences.instance,
+    builder: (context, _) {
+      final reading = ReadingPreferences.instance;
+      final index = ZikrStorageService.predefinedZikr.indexWhere(
+        (entry) =>
+            entry['name'] == widget.zikr.name &&
+            entry['arabic'] == widget.zikr.arabic,
+      );
+      const urdu = [
+        'اللہ کے سوا کوئی معبود نہیں، محمد ﷺ اللہ کے رسول ہیں۔',
+        'اللہ آپ پر اور آپ کے گھر والوں پر رحمت اور سلامتی نازل فرمائے۔',
+        'میں اللہ سے بخشش مانگتا ہوں، اس کے سوا کوئی معبود نہیں، وہ ہمیشہ زندہ اور سب کو قائم رکھنے والا ہے، اور میں اسی کی طرف توبہ کرتا ہوں۔',
+        'اللہ پاک ہے، تمام تعریف اللہ کے لیے ہے، اللہ کے سوا کوئی معبود نہیں، اللہ سب سے بڑا ہے، اور نیکی کی طاقت اور برائی سے بچنے کی قوت اللہ ہی کی مدد سے ہے، جو بلند اور عظمت والا ہے۔',
+      ];
+      final meaning =
+          reading.useUrdu(Localizations.localeOf(context).languageCode) &&
+              index >= 0
+          ? urdu[index]
+          : widget.zikr.meaning;
+
+      return Container(
+        padding: EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: widget.zikr.gradient,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: widget.zikr.gradient.colors[0].withOpacity(0.3),
+              blurRadius: 20,
+              offset: Offset(0, 10),
             ),
-            textDirection: TextDirection.rtl,
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 12),
-          Text(
-            widget.zikr.meaning,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
-              fontStyle: FontStyle.italic,
+          ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              widget.zikr.arabic,
+              style: TextStyle(
+                fontSize: reading.arabicSize,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily: 'Amiri',
+              ),
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
+            if (reading.showTransliteration && index >= 0) ...[
+              const SizedBox(height: 12),
+              Text(
+                widget.zikr.name,
+                textDirection: TextDirection.ltr,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: reading.meaningSize,
+                ),
+              ),
+            ],
+            SizedBox(height: 12),
+            Text(
+              meaning,
+              style: TextStyle(
+                fontSize: reading.meaningSize,
+                color: Colors.white.withOpacity(0.9),
+                fontStyle: FontStyle.italic,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    },
+  );
 
   Widget _buildCounterDisplay() {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = Theme.of(context).colorScheme.surface;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : Colors.black);
     final counterSize = ResponsiveUtils.getCounterSize(context);
-    final fontSize = ResponsiveUtils.getFontSize(context, mobile: 52, tablet: 60, desktop: 68);
-    
+    final fontSize = ResponsiveUtils.getFontSize(
+      context,
+      mobile: 52,
+      tablet: 60,
+      desktop: 68,
+    );
+
     return Column(
       children: [
         // Main Counter - Current Session
@@ -511,9 +595,14 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'Current Session',
+                        l10n.currentSessionLabel,
                         style: TextStyle(
-                          fontSize: ResponsiveUtils.getFontSize(context, mobile: 13, tablet: 15, desktop: 16),
+                          fontSize: ResponsiveUtils.getFontSize(
+                            context,
+                            mobile: 13,
+                            tablet: 15,
+                            desktop: 16,
+                          ),
                           color: isDark ? accentGrey : accentGreyDark,
                           fontWeight: FontWeight.w600,
                         ),
@@ -522,7 +611,12 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                       Text(
                         l10n.tapToCount,
                         style: TextStyle(
-                          fontSize: ResponsiveUtils.getFontSize(context, mobile: 11, tablet: 13, desktop: 14),
+                          fontSize: ResponsiveUtils.getFontSize(
+                            context,
+                            mobile: 11,
+                            tablet: 13,
+                            desktop: 14,
+                          ),
                           color: widget.zikr.gradient.colors[0],
                           fontStyle: FontStyle.italic,
                         ),
@@ -534,15 +628,29 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
             );
           },
         ),
-        
-        SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 24, tablet: 30, desktop: 36)),
-        
+
+        SizedBox(
+          height: ResponsiveUtils.getSpacing(
+            context,
+            mobile: 24,
+            tablet: 30,
+            desktop: 36,
+          ),
+        ),
+
         // Stats Row - Today's Total & Lifetime Total
         Row(
           children: [
             Expanded(
               child: Container(
-                padding: EdgeInsets.all(ResponsiveUtils.getSpacing(context, mobile: 16, tablet: 20, desktop: 24)),
+                padding: EdgeInsets.all(
+                  ResponsiveUtils.getSpacing(
+                    context,
+                    mobile: 16,
+                    tablet: 20,
+                    desktop: 24,
+                  ),
+                ),
                 decoration: BoxDecoration(
                   color: surfaceColor,
                   borderRadius: BorderRadius.circular(15),
@@ -556,7 +664,12 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                     Text(
                       "Today's Total",
                       style: TextStyle(
-                        fontSize: ResponsiveUtils.getFontSize(context, mobile: 12, tablet: 14, desktop: 15),
+                        fontSize: ResponsiveUtils.getFontSize(
+                          context,
+                          mobile: 12,
+                          tablet: 14,
+                          desktop: 15,
+                        ),
                         color: isDark ? accentGrey : accentGreyDark,
                         fontWeight: FontWeight.w500,
                       ),
@@ -565,7 +678,12 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                     Text(
                       '$todayCount',
                       style: TextStyle(
-                        fontSize: ResponsiveUtils.getFontSize(context, mobile: 28, tablet: 32, desktop: 36),
+                        fontSize: ResponsiveUtils.getFontSize(
+                          context,
+                          mobile: 28,
+                          tablet: 32,
+                          desktop: 36,
+                        ),
                         fontWeight: FontWeight.bold,
                         color: accentCyan,
                       ),
@@ -574,10 +692,24 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                 ),
               ),
             ),
-            SizedBox(width: ResponsiveUtils.getSpacing(context, mobile: 12, tablet: 16, desktop: 20)),
+            SizedBox(
+              width: ResponsiveUtils.getSpacing(
+                context,
+                mobile: 12,
+                tablet: 16,
+                desktop: 20,
+              ),
+            ),
             Expanded(
               child: Container(
-                padding: EdgeInsets.all(ResponsiveUtils.getSpacing(context, mobile: 16, tablet: 20, desktop: 24)),
+                padding: EdgeInsets.all(
+                  ResponsiveUtils.getSpacing(
+                    context,
+                    mobile: 16,
+                    tablet: 20,
+                    desktop: 24,
+                  ),
+                ),
                 decoration: BoxDecoration(
                   color: surfaceColor,
                   borderRadius: BorderRadius.circular(15),
@@ -589,9 +721,14 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                 child: Column(
                   children: [
                     Text(
-                      'All-Time Total',
+                      l10n.allTimeTotalLabel,
                       style: TextStyle(
-                        fontSize: ResponsiveUtils.getFontSize(context, mobile: 12, tablet: 14, desktop: 15),
+                        fontSize: ResponsiveUtils.getFontSize(
+                          context,
+                          mobile: 12,
+                          tablet: 14,
+                          desktop: 15,
+                        ),
                         color: isDark ? accentGrey : accentGreyDark,
                         fontWeight: FontWeight.w500,
                       ),
@@ -600,7 +737,12 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                     Text(
                       '$lifetimeTotal',
                       style: TextStyle(
-                        fontSize: ResponsiveUtils.getFontSize(context, mobile: 28, tablet: 32, desktop: 36),
+                        fontSize: ResponsiveUtils.getFontSize(
+                          context,
+                          mobile: 28,
+                          tablet: 32,
+                          desktop: 36,
+                        ),
                         fontWeight: FontWeight.bold,
                         color: accentGreen,
                       ),
@@ -611,9 +753,9 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
             ),
           ],
         ),
-        
+
         SizedBox(height: 20),
-        
+
         // Reset Button
         if (currentCount > 0)
           ElevatedButton.icon(
@@ -621,7 +763,10 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
             icon: Icon(Icons.refresh, color: Colors.white),
             label: Text(
               'Reset Session',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: accentPink,
@@ -639,22 +784,42 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
   Widget _buildIncrementButtons() {
     final l10n = AppLocalizations.of(context)!;
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildIncrementButton('+100', accentPink, () => _incrementCount(100), screenWidth),
-        _buildIncrementButton('+500', accentGreen, () => _incrementCount(500), screenWidth),
-        _buildIncrementButton(l10n.customIncrement, accentCyan, _showCustomIncrementDialog, screenWidth),
+        _buildIncrementButton(
+          '+100',
+          accentPink,
+          () => _incrementCount(100),
+          screenWidth,
+        ),
+        _buildIncrementButton(
+          '+500',
+          accentGreen,
+          () => _incrementCount(500),
+          screenWidth,
+        ),
+        _buildIncrementButton(
+          l10n.customIncrement,
+          accentCyan,
+          _showCustomIncrementDialog,
+          screenWidth,
+        ),
       ],
     );
   }
 
-  Widget _buildIncrementButton(String label, Color color, VoidCallback onPressed, double screenWidth) {
+  Widget _buildIncrementButton(
+    String label,
+    Color color,
+    VoidCallback onPressed,
+    double screenWidth,
+  ) {
     // Responsive button size
     final buttonSize = (screenWidth * 0.22).clamp(70.0, 110.0);
     final fontSize = (screenWidth * 0.038).clamp(12.0, 18.0);
-    
+
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (context, child) {
@@ -708,65 +873,88 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
 
   Widget _buildHistory() {
     final l10n = AppLocalizations.of(context)!;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
-    
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: surfaceColor,
+    final locale = Localizations.localeOf(context).toString();
+    final color = widget.zikr.gradient.colors.first;
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: widget.zikr.gradient.colors[0].withOpacity(0.3),
-          width: 1,
-        ),
+        side: BorderSide(color: color.withOpacity(0.3)),
       ),
-      child: Column(
-        children: [
-          Text(
-            l10n.historyTitle,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: textColor,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.historyTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-          SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.todayLabel,
-                style: TextStyle(color: isDark ? accentGrey : accentGreyDark),
+            const SizedBox(height: 12),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.todayLabel),
+              trailing: Text(
+                '$todayCount',
+                style: TextStyle(color: color, fontWeight: FontWeight.bold),
               ),
-              Text(
-                '+$todayCount',
-                style: TextStyle(
-                  color: widget.zikr.gradient.colors[0],
-                  fontWeight: FontWeight.bold,
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l10n.allTimeTotalLabel),
+              trailing: Text(
+                '$lifetimeTotal',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            const Divider(),
+            if (!_loaded)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              if (currentCount > 0)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.play_circle_outline, color: color),
+                  title: Text(l10n.currentSessionLabel),
+                  subtitle: Text(l10n.todayLabel),
+                  trailing: Text('$currentCount'),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.totalLabel,
-                style: TextStyle(color: isDark ? accentGrey : accentGreyDark),
-              ),
-              Text(
-                '$currentCount',
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
+              if (_sessions.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Text(l10n.noCompletedSessionsMessage),
+                )
+              else
+                ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  initiallyExpanded: true,
+                  title: Text(
+                    '${l10n.previousSessionsLabel} (${_sessions.length})',
+                  ),
+                  children: [
+                    for (final session in _sessions)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Icon(Icons.history, color: color),
+                        title: Text(
+                          DateFormat.yMMMd(locale).format(session.timestamp),
+                        ),
+                        subtitle: Text(
+                          DateFormat.jm(locale).format(session.timestamp),
+                        ),
+                        trailing: Text(
+                          '${session.count}',
+                          style: TextStyle(
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-              ),
             ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -775,28 +963,32 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = Theme.of(context).colorScheme.surface;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? (isDark ? Colors.white : Colors.black);
-    
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ??
+        (isDark ? Colors.white : Colors.black);
+
     return FutureBuilder<Map<String, int>>(
-      future: _storage.getZikrHistory(widget.zikr.name, days: 7),
+      future: Future.value(_dailyHistory),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SizedBox.shrink();
         }
-        
+
         final history = snapshot.data!;
-        
+
         // Convert to list and reverse so oldest is first
         final entries = history.entries.toList().reversed.toList();
-        
+
         if (entries.isEmpty) {
           return SizedBox.shrink();
         }
-        
+
         // Calculate max value for Y axis
-        final maxCount = entries.map((e) => e.value).reduce((a, b) => a > b ? a : b);
+        final maxCount = entries
+            .map((e) => e.value)
+            .reduce((a, b) => a > b ? a : b);
         final yMax = maxCount > 0 ? (maxCount * 1.2).ceilToDouble() : 10.0;
-        
+
         return Container(
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -852,12 +1044,12 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                             if (index < 0 || index >= entries.length) {
                               return Text('');
                             }
-                            
+
                             // Parse date and show day
                             final dateStr = entries[index].key;
                             final date = DateTime.parse(dateStr);
                             final day = date.day.toString();
-                            
+
                             return Padding(
                               padding: EdgeInsets.only(top: 8),
                               child: Text(
@@ -879,10 +1071,7 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                           getTitlesWidget: (value, meta) {
                             return Text(
                               value.toInt().toString(),
-                              style: TextStyle(
-                                color: accentGrey,
-                                fontSize: 12,
-                              ),
+                              style: TextStyle(color: accentGrey, fontSize: 12),
                             );
                           },
                         ),
@@ -890,9 +1079,7 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                     ),
                     borderData: FlBorderData(
                       show: true,
-                      border: Border.all(
-                        color: accentGrey.withOpacity(0.2),
-                      ),
+                      border: Border.all(color: accentGrey.withOpacity(0.2)),
                     ),
                     minX: 0,
                     maxX: (entries.length - 1).toDouble(),
@@ -947,11 +1134,11 @@ class _ZikrCounterPageState extends State<ZikrCounterPage>
                             final dateStr = entries[index].key;
                             final date = DateTime.parse(dateStr);
                             final dateFormatted = '${date.day}/${date.month}';
-                            
+
                             return LineTooltipItem(
                               '$dateFormatted\n${spot.y.toInt()} zikr',
                               TextStyle(
-                                color: Colors.white,
+                                color: textColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             );

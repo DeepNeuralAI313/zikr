@@ -531,6 +531,558 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Juz'**
   String get juz;
+
+  /// No description provided for @currentSessionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Session'**
+  String get currentSessionLabel;
+
+  /// No description provided for @previousSessionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous sessions'**
+  String get previousSessionsLabel;
+
+  /// No description provided for @allTimeTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All-Time Total'**
+  String get allTimeTotalLabel;
+
+  /// No description provided for @noCompletedSessionsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No completed sessions yet. Your current count is included in today?s total and chart.'**
+  String get noCompletedSessionsMessage;
+
+  /// No description provided for @dailyRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily routine'**
+  String get dailyRoutine;
+
+  /// No description provided for @todaysRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s routine'**
+  String get todaysRoutine;
+
+  /// No description provided for @personalGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Your personal goals'**
+  String get personalGoals;
+
+  /// No description provided for @dailyDhikrGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily dhikr goal'**
+  String get dailyDhikrGoal;
+
+  /// No description provided for @dailyRukuGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily ruku goal'**
+  String get dailyRukuGoal;
+
+  /// No description provided for @validGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter whole numbers from 1 to 1,000,000.'**
+  String get validGoals;
+
+  /// No description provided for @quranPlanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran completion planner'**
+  String get quranPlanner;
+
+  /// No description provided for @plannerExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'The target uses rukus you have marked as read. Saved places do not count as completed reading.'**
+  String get plannerExplanation;
+
+  /// No description provided for @finishDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish date'**
+  String get finishDate;
+
+  /// No description provided for @chooseDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get chooseDate;
+
+  /// No description provided for @remainingRukus.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining rukus'**
+  String get remainingRukus;
+
+  /// No description provided for @rukusPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Rukus per day'**
+  String get rukusPerDay;
+
+  /// No description provided for @planExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your finish date has passed. Choose a new date.'**
+  String get planExpired;
+
+  /// No description provided for @useTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this daily target'**
+  String get useTarget;
+
+  /// No description provided for @dailyReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminders'**
+  String get dailyReminders;
+
+  /// No description provided for @reminderExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose local times. Delivery may be delayed by your phone\'s battery settings.'**
+  String get reminderExplanation;
+
+  /// No description provided for @mobileRemindersOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are available on Android and iOS.'**
+  String get mobileRemindersOnly;
+
+  /// No description provided for @dhikrReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Dhikr reminder'**
+  String get dhikrReminder;
+
+  /// No description provided for @quranReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran reminder'**
+  String get quranReminder;
+
+  /// No description provided for @saveRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Save routine'**
+  String get saveRoutine;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get saving;
+
+  /// No description provided for @routineSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your routine has been saved.'**
+  String get routineSaved;
+
+  /// No description provided for @notificationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are disabled. Enable them in your phone settings, then turn reminders on again.'**
+  String get notificationDenied;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save'**
+  String get saveFailed;
+
+  /// No description provided for @progressLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load progress. Reopen this screen to retry.'**
+  String get progressLoadFailed;
+
+  /// No description provided for @recordedRukusExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rukus marked as read today. Saving a place adds no reading credit.'**
+  String get recordedRukusExplanation;
+
+  /// No description provided for @routineComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Alhamdulillah, today\'s goals are complete.'**
+  String get routineComplete;
+
+  /// No description provided for @guidedAdhkar.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning & evening adhkar'**
+  String get guidedAdhkar;
+
+  /// No description provided for @morningAdhkar.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get morningAdhkar;
+
+  /// No description provided for @eveningAdhkar.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get eveningAdhkar;
+
+  /// No description provided for @adhkarExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'A short guided collection. Morning and evening counts are saved separately each day and are separate from your main dhikr counters. Meanings below are in English.'**
+  String get adhkarExplanation;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @goalsAndReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals, reading plan and reminder times'**
+  String get goalsAndReminders;
+
+  /// No description provided for @createBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Save backup file'**
+  String get createBackup;
+
+  /// No description provided for @backupExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes counts, history, custom dhikr, routine and guided adhkar. Keep a copy somewhere safe.'**
+  String get backupExplanation;
+
+  /// No description provided for @shareBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Share backup'**
+  String get shareBackup;
+
+  /// No description provided for @restoreBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore backup'**
+  String get restoreBackup;
+
+  /// No description provided for @exportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export progress as CSV'**
+  String get exportCsv;
+
+  /// No description provided for @fileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'File saved.'**
+  String get fileSaved;
+
+  /// No description provided for @confirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get confirmAction;
+
+  /// No description provided for @backupTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a backup smaller than 25 MB.'**
+  String get backupTooLarge;
+
+  /// No description provided for @restoreWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This replaces all current counts, history, custom dhikr, routine and guided adhkar with the backup. Save a backup of your current data first.'**
+  String get restoreWarning;
+
+  /// No description provided for @backupRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored.'**
+  String get backupRestored;
+
+  /// No description provided for @reminderRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Data restored. Open Daily routine to set up reminders again.'**
+  String get reminderRestoreFailed;
+
+  /// No description provided for @resetProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all progress'**
+  String get resetProgress;
+
+  /// No description provided for @resetWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This clears all dhikr counts, session history, Quran progress and guided adhkar counts. Custom dhikr and routine settings are kept. Save a backup first. This cannot be undone.'**
+  String get resetWarning;
+
+  /// No description provided for @progressReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress reset.'**
+  String get progressReset;
+
+  /// No description provided for @homeWidget.
+  ///
+  /// In en, this message translates to:
+  /// **'Android home-screen widget'**
+  String get homeWidget;
+
+  /// No description provided for @widgetInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'On Android, long-press your home screen, choose Widgets, then Dhikr. Tap the widget to open your counters.'**
+  String get widgetInstructions;
+
+  /// No description provided for @localPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays on your device'**
+  String get localPrivacy;
+
+  /// No description provided for @privacyExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'No account or cloud sync is required. Backup files contain your progress; you choose where to save or share them.'**
+  String get privacyExplanation;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get appVersion;
+
+  /// No description provided for @csvExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a spreadsheet of your progress. This file is for viewing, not restoring.'**
+  String get csvExplanation;
+
+  /// No description provided for @shareBackupExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a JSON backup using another app.'**
+  String get shareBackupExplanation;
+
+  /// No description provided for @restoreBackupExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a JSON backup file to restore.'**
+  String get restoreBackupExplanation;
+
+  /// No description provided for @adhkarCollectionsExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning and evening are separate lists. Add, edit or remove entries independently. Choose text size, transliteration and meaning language in Appearance.'**
+  String get adhkarCollectionsExplanation;
+
+  /// No description provided for @emptyAdhkarCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'This list is empty. Add your first dhikr above.'**
+  String get emptyAdhkarCollection;
+
+  /// No description provided for @editDhikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit dhikr'**
+  String get editDhikr;
+
+  /// No description provided for @deleteDhikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete dhikr'**
+  String get deleteDhikr;
+
+  /// No description provided for @deleteGuidedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this dhikr from this list? The other list and its counts are kept.'**
+  String get deleteGuidedWarning;
+
+  /// No description provided for @addToCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to'**
+  String get addToCollection;
+
+  /// No description provided for @bothCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning and evening'**
+  String get bothCollections;
+
+  /// No description provided for @sourceOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference (optional)'**
+  String get sourceOptional;
+
+  /// No description provided for @repetitionTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Repetitions'**
+  String get repetitionTarget;
+
+  /// No description provided for @saveDhikr.
+  ///
+  /// In en, this message translates to:
+  /// **'Save dhikr'**
+  String get saveDhikr;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @appearanceSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Language, theme and reading controls'**
+  String get appearanceSummary;
+
+  /// No description provided for @yourData.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get yourData;
+
+  /// No description provided for @yourDataSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up, restore or export your progress'**
+  String get yourDataSummary;
+
+  /// No description provided for @arabicTextSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic text size'**
+  String get arabicTextSize;
+
+  /// No description provided for @meaningTextSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Meaning text size'**
+  String get meaningTextSize;
+
+  /// No description provided for @showTransliteration.
+  ///
+  /// In en, this message translates to:
+  /// **'Show transliteration'**
+  String get showTransliteration;
+
+  /// No description provided for @meaningLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Meaning language'**
+  String get meaningLanguage;
+
+  /// No description provided for @followAppLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow app language'**
+  String get followAppLanguage;
+
+  /// No description provided for @meaningFallbackExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Urdu meanings are available for built-in entries. Other entries use their saved meaning.'**
+  String get meaningFallbackExplanation;
+
+  /// No description provided for @readingPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading preview'**
+  String get readingPreview;
+
+  /// No description provided for @transliterationOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Transliteration (optional)'**
+  String get transliterationOptional;
+
+  /// No description provided for @urduMeaningOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Urdu meaning (optional)'**
+  String get urduMeaningOptional;
+
+  /// No description provided for @saveMyPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Save my place'**
+  String get saveMyPlace;
+
+  /// No description provided for @bookmarkOnlyExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save where to resume. This does not mark the ruku as read.'**
+  String get bookmarkOnlyExplanation;
+
+  /// No description provided for @markAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get markAsRead;
+
+  /// No description provided for @completionExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Record this ruku as completed today and update your saved place.'**
+  String get completionExplanation;
+
+  /// No description provided for @undoCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo today’s completion'**
+  String get undoCompletion;
+
+  /// No description provided for @undoCompletionExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this ruku from today’s completed reading. Your saved place is kept.'**
+  String get undoCompletionExplanation;
+
+  /// No description provided for @bookmarkSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reading place has been saved.'**
+  String get bookmarkSaved;
+
+  /// No description provided for @readingRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ruku marked as read for today.'**
+  String get readingRecorded;
+
+  /// No description provided for @completionRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Today’s completion was removed.'**
+  String get completionRemoved;
+
+  /// No description provided for @quranTrackingExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a ruku to save your place or mark it as read. Checkmarks show what you completed today.'**
+  String get quranTrackingExplanation;
 }
 
 class _AppLocalizationsDelegate

@@ -10,6 +10,9 @@ import '../../core/services/theme_service.dart';
 import '../../core/services/locale_service.dart';
 import '../../core/services/app_update_service.dart';
 import '../../core/utils/responsive_utils.dart';
+import '../routine/daily_progress_card.dart';
+import '../../core/services/routine_service.dart';
+import '../../core/services/reminder_service.dart';
 
 class ModernHomePage extends StatefulWidget {
   @override
@@ -17,7 +20,7 @@ class ModernHomePage extends StatefulWidget {
 }
 
 class _ModernHomePageState extends State<ModernHomePage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _scaleController;
   late Animation<double> _scaleAnimation;
   
@@ -27,10 +30,24 @@ class _ModernHomePageState extends State<ModernHomePage>
   int todayTotalZikr = 0;
   int totalZikr = 0;
   bool isLoading = true;
+  bool _openingRoute = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    LocaleService.instance.addListener(_localeChanged);
+    RoutineService.widgetChannel.setMethodCallHandler((call) async {
+      if (call.method == 'openCounters' && mounted) _onCardTap('/zikr-flow');
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final route = await RoutineService.widgetChannel.invokeMethod<String>('launchRoute');
+        if (mounted && route == '/zikr-flow') _onCardTap(route!);
+      } on PlatformException catch (_) {
+      } on MissingPluginException catch (_) {}
+    });
+    _refreshReminders();
     _scaleController = AnimationController(
       duration: Duration(milliseconds: 200),
       vsync: this,
@@ -53,8 +70,27 @@ class _ModernHomePageState extends State<ModernHomePage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    LocaleService.instance.removeListener(_localeChanged);
+    RoutineService.widgetChannel.setMethodCallHandler(null);
     _scaleController.dispose();
     super.dispose();
+  }
+
+  Future<void> _refreshReminders() async {
+    try {
+      await ReminderService.instance.schedule(await RoutineService.settings());
+    } catch (e) { debugPrint('Reminder refresh failed: $e'); }
+  }
+
+  void _localeChanged() {
+    _refreshReminders();
+    RoutineService.progressChanged();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) { _loadData(); _refreshReminders(); }
   }
 
   Future<void> _loadData() async {
@@ -64,7 +100,8 @@ class _ModernHomePageState extends State<ModernHomePage>
       // Load Zikr data from storage (works on all platforms)
       final allZikrCounts = await storage.getAllZikrCounts();
       final todayTotal = await storage.getTodayTotalZikrCount();
-      final totalCount = allZikrCounts.values.fold<int>(0, (sum, count) => sum + count);
+      final lifetimeTotals = await storage.getAllLifetimeTotals();
+      final totalCount = lifetimeTotals.values.fold<int>(0, (sum, count) => sum + count);
       
       // Load Quran progress (only on non-web platforms)
       QuranProgress? quranProgress;
@@ -75,6 +112,7 @@ class _ModernHomePageState extends State<ModernHomePage>
         print('Quran progress not available on this platform: $e');
       }
       
+      if (!mounted) return;
       setState(() {
         lastQuranProgress = quranProgress;
         zikrCounts = allZikrCounts;
@@ -82,23 +120,28 @@ class _ModernHomePageState extends State<ModernHomePage>
         totalZikr = totalCount;
         isLoading = false;
       });
+      RoutineService.changes.value++;
+      await RoutineService.updateWidget();
     } catch (e) {
       print('Error loading data: $e');
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
     }
   }
 
-  void _onCardTap(String route) {
+  Future<void> _onCardTap(String route) async {
+    if (_openingRoute || !mounted) return;
+    _openingRoute = true;
     HapticFeedback.lightImpact();
-    _scaleController.forward().then((_) {
+    try {
       _scaleController.reverse();
-      Navigator.pushNamed(context, route).then((_) {
-        // Reload data when returning from other screens
-        _loadData();
-      });
-    });
+      await Navigator.pushNamed(context, route);
+      if (mounted) await _loadData();
+    } finally {
+      _openingRoute = false;
+    }
   }
 
   String _getQuranStatusText() {
@@ -140,10 +183,8 @@ class _ModernHomePageState extends State<ModernHomePage>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white;
-    
+
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
@@ -173,6 +214,17 @@ class _ModernHomePageState extends State<ModernHomePage>
                                 SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 20, tablet: 30, desktop: 40)),
                                 
                                 // Quran Card
+                                const DailyProgressCard(),
+                                const SizedBox(height: 16),
+                                Wrap(spacing: 12, runSpacing: 8, children: [
+                                  ActionChip(avatar: const Icon(Icons.auto_stories_outlined),
+                                    label: Text(AppLocalizations.of(context)!.guidedAdhkar),
+                                    onPressed: () => _onCardTap('/adhkar')),
+                                  ActionChip(avatar: const Icon(Icons.settings_outlined),
+                                    label: Text(AppLocalizations.of(context)!.settings),
+                                    onPressed: () => _onCardTap('/settings')),
+                                ]),
+                                const SizedBox(height: 20),
                                 _buildQuranCard(),
                                 
                                 SizedBox(height: ResponsiveUtils.getSpacing(context, mobile: 25, tablet: 35, desktop: 45)),
@@ -662,7 +714,6 @@ class _ModernHomePageState extends State<ModernHomePage>
     double verticalPadding,
     double horizontalPadding,
   ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final surfaceColor = Theme.of(context).colorScheme.surface;
     
     return Flexible(

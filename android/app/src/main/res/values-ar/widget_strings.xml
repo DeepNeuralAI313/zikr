@@ -1,0 +1,7 @@
+<resources>
+    <string name="widget_name">ذِكر · اليوم</string>
+    <string name="widget_description">تقدم الذكر والقرآن اليومي. اضغط لفتح العدادات.</string>
+    <string name="widget_open">اضغط لفتح عدادات الذكر</string>
+    <string name="widget_dhikr">الذكر: %1$d / %2$d</string>
+    <string name="widget_rukus">الركوع: %1$d / %2$d</string>
+</resources>

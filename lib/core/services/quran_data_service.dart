@@ -95,6 +95,8 @@ class QuranDataService {
 
   /// Get total number of Ruku in a Juz
   int getRukuCount(int juzNumber) {
+    final count = _quranData?['$juzNumber'];
+    if (count is int) return count;
     return getRukuList(juzNumber).length;
   }
 

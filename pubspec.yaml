@@ -1,6 +1,6 @@
 name: zikr
 description: A Flutter app for Quran and Zikr tracking
-version: 2.1.1+5
+version: 2.3.0+14
 
 environment:
   sdk: ^3.8.1
@@ -24,6 +24,10 @@ dependencies:
   shared_preferences: ^2.2.0
   in_app_update: ^4.2.3
   package_info_plus: ^8.0.0
+  file_picker: ^8.3.7
+  share_plus: ^12.0.1
+  timezone: ^0.9.4
+  flutter_timezone: ^5.0.1
 
 dev_dependencies:
   flutter_test:
